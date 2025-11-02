@@ -29,7 +29,7 @@ WORKDIR /app
 # copy the above stage as compressed
 COPY --from=backend-builder /app .
 
-//COPY .env .env.local
+#COPY .env .env.local
 
 # Port
 EXPOSE 5000
