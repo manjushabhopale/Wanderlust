@@ -1,0 +1,19 @@
+exit
+db.posts.countDocuments()
+use wanderlust
+show dbs
+exit
+db.posts.find().pretty()
+show collections
+use wanderlust
+show dbs
+exit
+db.posts.countDocuments()
+use wanderlust
+show dbs
+exit
+db.posts.countDocuments()
+db.posts.find().pretty()
+db.posts.countDocuments()
+use wanderlust
+show dbs
