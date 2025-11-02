@@ -15,7 +15,8 @@ COPY . .
 
 # ------------------- Stage 2: Final Stage ------------------------------
 FROM node:21-slim
-
+ARG VITE_API_PATH
+ENV VITE_API_PATH=$VITE_API_PATH
 # Set the working directory to /app
 WORKDIR /app
 
@@ -23,7 +24,7 @@ WORKDIR /app
 COPY --from=frontend-builder /app .
 
 # Copy the .env.sample file to .env.local
-COPY .env .env.local
+#COPY .env .env.local
 
 # Expose port 5173 for the Node.js application
 EXPOSE 5173
