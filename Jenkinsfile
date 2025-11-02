@@ -50,6 +50,15 @@ pipeline {
                 }
             }
         }
+        stage('Merge Coverage Reports') {
+            steps {
+                sh '''
+                mkdir -p merged-coverage
+                npx lcov-result-merger "frontend/coverage/lcov.info" "backend/coverage/lcov.info" "merged-coverage/lcov.info"
+                '''
+            }
+        }
+
         stage('SonarCloud Analysis') {
             steps {
                 withSonarQubeEnv("${SONARQUBE}") {
@@ -59,7 +68,8 @@ pipeline {
                           -Dsonar.organization=manjushabhopale \
                           -Dsonar.projectKey=manjushabhopale_wanderlust \
                           -Dsonar.sources=. \
-                          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+                          -Dsonar.javascript.lcov.reportPaths=merged-coverage/lcov.info \
+                          -Dsonar.typescript.lcov.reportPaths=merged-coverage/lcov.info \
                           -Dsonar.host.url=https://sonarcloud.io \
                           -Dsonar.login=$SONAR_TOKEN
                         """
