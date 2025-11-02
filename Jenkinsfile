@@ -34,17 +34,20 @@ pipeline {
                 }
             }
         }
-        stage('Frontend Test')
-        {
+        stage('Frontend Test') {
             steps {
-                sh 'npm install'
-                sh 'npm test -- --coverage'
+                dir('frontend') {
+                    sh 'npm install'
+                    sh 'npm test -- --coverage'
+                }
             }
         }
-        stage('Backend Test')
-        {
+        stage('Backend Test') {
             steps {
-                sh 'npm run test -- --coverage'
+                dir('backend') {
+                    sh 'npm install'
+                    sh 'npm test -- --coverage'
+                }
             }
         }
         stage('SonarCloud Analysis') {
@@ -117,7 +120,6 @@ pipeline {
             '''
             }
     }
-
     }
     post {
         always {
