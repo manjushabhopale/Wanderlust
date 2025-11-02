@@ -15,8 +15,8 @@ COPY . .
 
 # ------------------- Stage 2: Final Stage ------------------------------
 FROM node:21-slim
-ARG VITE_API_PATH
-ENV VITE_API_PATH=$VITE_API_PATH
+ARG VITE_API_PATH_1
+ENV VITE_API_PATH_1=$VITE_API_PATH_1
 # Set the working directory to /app
 WORKDIR /app
 
