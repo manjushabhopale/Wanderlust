@@ -37,6 +37,7 @@ pipeline {
         stage('Frontend Test')
         {
             steps {
+                sh 'npm install'
                 sh 'npm test -- --coverage'
             }
         }
