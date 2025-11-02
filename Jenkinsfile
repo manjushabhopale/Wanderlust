@@ -14,6 +14,8 @@ pipeline {
         REGION = 'ap-south-1'
         BACKEND_TAG = "backend-${BUILD_NUMBER}"
         FRONTEND_TAG = "frontend-${BUILD_NUMBER}"
+        SONAR_TOKEN = credentials('sonar-scan-token')
+        SONARQUBE = 'SonarCloud'
     }
 
     stages {
@@ -32,17 +34,32 @@ pipeline {
                 }
             }
         }
-
-        stage('Build  Backend Docker Image') {
+        stage('Frontend Test')
+        {
             steps {
-                dir('backend') {
-                    sh """
-                docker build --no-cache \
-                --build-arg MONGODB_URI=${MONGODB_URI} \
-                --build-arg REDIS_URL=${REDIS_URL} \
-                --build-arg VITE_API_PATH=${BACKEND_API_PATH} \
-                -t wanderlust-backend .
-                """
+                sh 'npm test -- --coverage'
+            }
+        }
+        stage('Backend Test')
+        {
+            steps {
+                sh 'npm run test -- --coverage'
+            }
+        }
+        stage('SonarCloud Analysis') {
+            steps {
+                withSonarQubeEnv("${SONARQUBE}") {
+                    withCredentials([string(credentialsId: 'sonar-scan-token', variable: 'SONAR_TOKEN')]) {
+                        sh """
+                        ${tool name: 'SonarCloud', type: 'hudson.plugins.sonar.SonarRunnerInstallation'}/bin/sonar-scanner \
+                          -Dsonar.organization=manjushabhopale \
+                          -Dsonar.projectKey=manjushabhopale_wanderlust \
+                          -Dsonar.sources=. \
+                          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+                          -Dsonar.host.url=https://sonarcloud.io \
+                          -Dsonar.login=$SONAR_TOKEN
+                        """
+                    }
                 }
             }
         }
@@ -57,6 +74,20 @@ pipeline {
                 }
             }
         }
+        stage('Build  Backend Docker Image') {
+            steps {
+                dir('backend') {
+                    sh """
+                docker build --no-cache \
+                --build-arg MONGODB_URI=${MONGODB_URI} \
+                --build-arg REDIS_URL=${REDIS_URL} \
+                --build-arg VITE_API_PATH=${BACKEND_API_PATH} \
+                -t wanderlust-backend .
+                """
+                }
+            }
+        }
+
         stage('ECR login')
     {
             steps {
@@ -67,21 +98,21 @@ pipeline {
           }
             }
     }
-        stage('Backend image push')
-    {
-            steps {
-                sh '''
-            docker tag wanderlust-backend:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/wanderlust-backend:${BACKEND_TAG}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/wanderlust-backend:${BACKEND_TAG}
-            '''
-            }
-    }
         stage('Frontend image push')
     {
             steps {
                 sh '''
             docker tag wanderlust-frontend:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/wanderlust-frontend:${FRONTEND_TAG}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/wanderlust-frontend:${FRONTEND_TAG}
+            '''
+            }
+    }
+        stage('Backend image push')
+    {
+            steps {
+                sh '''
+            docker tag wanderlust-backend:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/wanderlust-backend:${BACKEND_TAG}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/wanderlust-backend:${BACKEND_TAG}
             '''
             }
     }
