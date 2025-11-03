@@ -134,12 +134,12 @@ pipeline {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
                  sh 'rm -rf Wanderlust-K8s'
                 sh 'git clone -b main https://github.com/manjushabhopale/Wanderlust-K8s.git'
-                dir("Wanderlust-K8s/backend") {
+                dir("Wanderlust-K8s") {
                     sh '''
                         #### Replace Docker Tag ####
                         git checkout main
-                        sed -i "s#wanderlust-backend.*#wanderlust-backend:${BACKEND_TAG}#g" deployment.yml
-                        cat deployment.yml
+                        sed -i "s#wanderlust-backend.*#wanderlust-backend:${BACKEND_TAG}#g" backend-deployment.yml
+                        cat backend-deployment.yml
                         
                         #### Commit and Push to Feature Branch ####
                         git config --global user.email "manjushabhopale95.com"
@@ -149,12 +149,12 @@ pipeline {
                         git push -u origin main
                     '''
                 }
-                dir("Wanderlust-K8s/frontend") {
+                dir("Wanderlust-K8s") {
                     sh '''
                         #### Replace Docker Tag ####
                         git checkout main
-                        sed -i "s#wanderlust-frontend.*#wanderlust-frontend:${FRONTEND_TAG}#g" deployment.yml
-                        cat deployment.yml
+                        sed -i "s#wanderlust-frontend.*#wanderlust-frontend:${FRONTEND_TAG}#g" frontend-deployment.yml
+                        cat frontend-deployment.yml
                         
                         #### Commit and Push to Feature Branch ####
                         git config --global user.email "manjushabhopale95.com"
