@@ -138,7 +138,7 @@ pipeline {
                     sh '''
                         #### Replace Docker Tag ####
                         git checkout main
-                        sed -i "s#wanderlust-backend.*#wanderlust-backend:${IMAGE_TAG}#g" deployment.yml
+                        sed -i "s#wanderlust-backend.*#wanderlust-backend:${BACKEND_TAG}#g" deployment.yml
                         cat deployment.yml
                         
                         #### Commit and Push to Feature Branch ####
@@ -153,7 +153,7 @@ pipeline {
                     sh '''
                         #### Replace Docker Tag ####
                         git checkout main
-                        sed -i "s#wanderlust-frontend.*#wanderlust-frontend:${IMAGE_TAG}#g" deployment.yml
+                        sed -i "s#wanderlust-frontend.*#wanderlust-frontend:${FRONTEND_TAG}#g" deployment.yml
                         cat deployment.yml
                         
                         #### Commit and Push to Feature Branch ####
