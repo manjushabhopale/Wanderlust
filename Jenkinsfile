@@ -80,7 +80,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh """
-                docker build --no-cache \
+                docker build \
                 --build-arg VITE_API_PATH_1=${FRONTEND_API_PATH} \
                 -t wanderlust-frontend .
                 """
@@ -91,7 +91,7 @@ pipeline {
             steps {
                 dir('backend') {
                     sh """
-                docker build --no-cache \
+                docker build  \
                 --build-arg MONGODB_URI=${MONGODB_URI} \
                 --build-arg REDIS_URL=${REDIS_URL} \
                 --build-arg VITE_API_PATH=${BACKEND_API_PATH} \
@@ -138,8 +138,8 @@ pipeline {
                     sh '''
                         #### Replace Docker Tag ####
                         git checkout main
-                        sed -i "s#wanderlust-backend.*#wanderlust-backend:${IMAGE_TAG}#g" deployment.yaml
-                        cat deployment.yaml
+                        sed -i "s#wanderlust-backend.*#wanderlust-backend:${IMAGE_TAG}#g" deployment.yml
+                        cat deployment.yml
                         
                         #### Commit and Push to Feature Branch ####
                         git config --global user.email "manjushabhopale95.com"
@@ -153,8 +153,8 @@ pipeline {
                     sh '''
                         #### Replace Docker Tag ####
                         git checkout main
-                        sed -i "s#wanderlust-frontend.*#wanderlust-frontend:${IMAGE_TAG}#g" deployment.yaml
-                        cat deployment.yaml
+                        sed -i "s#wanderlust-frontend.*#wanderlust-frontend:${IMAGE_TAG}#g" deployment.yml
+                        cat deployment.yml
                         
                         #### Commit and Push to Feature Branch ####
                         git config --global user.email "manjushabhopale95.com"
