@@ -129,6 +129,46 @@ pipeline {
             '''
             }
     }
+    stage('K8S - Update Image Tag') {
+            steps {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
+                 sh 'rm -rf Wanderlust-K8s'
+                sh 'git clone -b main https://github.com/manjushabhopale/Wanderlust-K8s.git'
+                dir("Wanderlust-K8s/backend") {
+                    sh '''
+                        #### Replace Docker Tag ####
+                        git checkout main
+                        sed -i "s#wanderlust-backend.*#wanderlust-backend:${IMAGE_TAG}#g" deployment.yaml
+                        cat deployment.yaml
+                        
+                        #### Commit and Push to Feature Branch ####
+                        git config --global user.email "manjushabhopale95.com"
+                        git remote set-url origin https://${GIT_TOKEN}@github.com/manjushabhopale/Wanderlust-K8s.git
+                        git add .
+                        git commit -am "Updated docker image"
+                        git push -u origin main
+                    '''
+                }
+                dir("Wanderlust-K8s/frontend") {
+                    sh '''
+                        #### Replace Docker Tag ####
+                        git checkout main
+                        sed -i "s#wanderlust-frontend.*#wanderlust-frontend:${IMAGE_TAG}#g" deployment.yaml
+                        cat deployment.yaml
+                        
+                        #### Commit and Push to Feature Branch ####
+                        git config --global user.email "manjushabhopale95.com"
+                        git remote set-url origin https://${GIT_TOKEN}@github.com/manjushabhopale/Wanderlust-K8s.git
+                        git add .
+                        git commit -am "Updated docker image"
+                        git push -u origin main
+                    '''
+                }
+
+
+                }
+            }
+        }
 
     }
     post {
