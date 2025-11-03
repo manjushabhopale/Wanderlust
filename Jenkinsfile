@@ -16,7 +16,6 @@ pipeline {
         FRONTEND_TAG = "frontend-${BUILD_NUMBER}"
         SONAR_TOKEN = credentials('sonar-scan-token')
         SONARQUBE = 'SonarCloud'
-        EKS_CLUSTER = 'wanderlust'
     }
 
     stages {
@@ -130,36 +129,6 @@ pipeline {
             '''
             }
     }
-        stage('Deploy to EKS') {
-            steps {
-                withCredentials([
-            string(credentialsId: 'MONGODB_URI', variable: 'MONGODB_URI'),
-            string(credentialsId: 'REDIS_URL', variable: 'REDIS_URL'),
-            string(credentialsId: 'FRONTEND_API_PATH', variable: 'FRONTEND_API_PATH')
-        ]) {
-                    sh '''
-            aws eks update-kubeconfig --region ap-south-1 --name wanderlust
-
-            # Apply all deployments and services
-            kubectl apply -f K8s/database/ -n wanderlust
-            kubectl apply -f K8s/backend/ -n wanderlust
-            kubectl apply -f K8s/frontend/ -n wanderlust
-
-            # Inject environment variables
-            kubectl set env deployment/backend-deployment -n wanderlust \
-              MONGODB_URI=$MONGODB_URI \
-              REDIS_URL=$REDIS_URL
-
-            kubectl set env deployment/frontend-deployment -n wanderlust \
-              FRONTEND_API_PATH=$FRONTEND_API_PATH
-
-            # Restart pods to pick up new env vars
-            kubectl rollout restart deployment/backend-deployment -n wanderlust
-            kubectl rollout restart deployment/frontend-deployment -n wanderlust
-            '''
-        }
-            }
-        }
 
     }
     post {
