@@ -11,17 +11,19 @@ RUN npm install
 # Copy all source code
 COPY . .
 
-# Build the app for production
-RUN npm run build
-
 # ------------------- Stage 2: NGINX Stage ------------------------------
-FROM nginx:alpine
+FROM node:21-slim
+
+WORKDIR /app
 
 # Copy build output to Nginx HTML directory
-COPY --from=frontend-builder /app/dist /usr/share/nginx/html
+COPY --from=frontend-builder /app .
+
+# Copy the .env.sample file to .env.local
+COPY .env.docker .env.local
 
 # Expose port 80 for web access
-EXPOSE 80
+EXPOSE 5173
 
 # Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "run", "dev", "--", "--host"]

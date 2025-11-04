@@ -6,10 +6,10 @@ pipeline {
     }
     environment {
         //NODE_ENV = 'test'
-        MONGODB_URI = credentials('mongo-uri')
-        REDIS_URL   = credentials('redis-uri')
-        BACKEND_API_PATH = credentials('backend-api')
-        FRONTEND_API_PATH = credentials('frontend-api')
+        //MONGODB_URI = credentials('mongo-uri')
+        //REDIS_URL   = credentials('redis-uri')
+        //BACKEND_API_PATH = credentials('backend-api')
+        //FRONTEND_API_PATH = credentials('frontend-api')
         AWS_ACCOUNT_ID = credentials('aws-account-id')
         REGION = 'ap-south-1'
         BACKEND_TAG = "backend-${BUILD_NUMBER}"
@@ -76,13 +76,39 @@ pipeline {
                 }
             }
         }
+
+        stage('Exporting environment variables') {
+            parallel{
+                stage("Backend env setup"){
+                    steps {
+                        script{
+                            dir("Automations"){
+                                sh "bash updatebackendnew.sh"
+                            }
+                        }
+                    }
+                }
+                
+                stage("Frontend env setup"){
+                    steps {
+                        script{
+                            dir("Automations"){
+                                sh "bash updatefrontendnew.sh"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         stage('Build Frontend Docker Image') {
             steps {
                 dir('frontend') {
                     sh """
                 docker build \
-                --build-arg VITE_API_PATH_1=${FRONTEND_API_PATH} \
-                -t wanderlust-frontend .
+                // --build-arg VITE_API_PATH_1=${FRONTEND_API_PATH} \
+                 -t wanderlust-frontend .
                 """
                 }
             }
@@ -92,9 +118,9 @@ pipeline {
                 dir('backend') {
                     sh """
                 docker build  \
-                --build-arg MONGODB_URI=${MONGODB_URI} \
-                --build-arg REDIS_URL=${REDIS_URL} \
-                --build-arg VITE_API_PATH=${BACKEND_API_PATH} \
+                //--build-arg MONGODB_URI=${MONGODB_URI} \
+                //--build-arg REDIS_URL=${REDIS_URL} \
+                //--build-arg VITE_API_PATH=${BACKEND_API_PATH} \
                 -t wanderlust-backend .
                 """
                 }
