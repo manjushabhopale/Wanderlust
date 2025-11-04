@@ -107,7 +107,6 @@ pipeline {
                 dir('frontend') {
                     sh """
                 docker build \
-                // --build-arg VITE_API_PATH_1=${FRONTEND_API_PATH} \
                  -t wanderlust-frontend .
                 """
                 }
