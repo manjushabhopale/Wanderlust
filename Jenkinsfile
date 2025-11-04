@@ -117,9 +117,6 @@ pipeline {
                 dir('backend') {
                     sh """
                 docker build  \
-                //--build-arg MONGODB_URI=${MONGODB_URI} \
-                //--build-arg REDIS_URL=${REDIS_URL} \
-                //--build-arg VITE_API_PATH=${BACKEND_API_PATH} \
                 -t wanderlust-backend .
                 """
                 }
